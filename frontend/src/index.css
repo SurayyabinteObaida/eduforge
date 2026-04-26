@@ -3,21 +3,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg:      #F7F6F3;
+  --bg:      #F0F5F2;
   --bg2:     #FFFFFF;
-  --bg3:     #F0EEE9;
-  --bg4:     #E8E5DF;
-  --border:  #E2DED7;
-  --border2: #D4CFC6;
-  --accent:  #7C5CFC;
-  --accent2: #E07B39;
-  --accent3: #2D9B6F;
-  --text:    #1C1917;
-  --text2:   #57534E;
-  --text3:   #A8A29E;
-  --warn:    #D97706;
-  --danger:  #DC2626;
-  --success: #2D9B6F;
+  --bg3:     #E8F0EC;
+  --bg4:     #DCE9E2;
+  --border:  #CDE0D6;
+  --border2: #B8D0C4;
+  --accent:  #1A6B5A;
+  --accent2: #C47F7F;
+  --accent3: #3DAA8A;
+  --text:    #1A2E26;
+  --text2:   #4A6358;
+  --text3:   #8AA898;
+  --warn:    #C47F7F;
+  --danger:  #B85C5C;
+  --success: #1A6B5A;
 }
 
 html, body, #root { height: 100%; }
