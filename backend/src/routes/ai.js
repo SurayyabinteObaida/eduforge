@@ -122,31 +122,40 @@ router.post("/visualizer", async (req, res) => {
 
     const darkBg = colorScheme === "dark";
 
-    const prompt = `You are an expert educational visualizer developer specializing in deep learning concepts.
+    const prompt = `You are an expert at creating stunning, continuously animated educational visualizers for deep learning concepts using pure HTML, CSS, and JavaScript.
 
-Create a beautiful, self-contained HTML visualizer for: "${concept}"
-What to show: ${description || "a clear visual explanation of how this concept works"}
+Create a richly animated visualizer for: "${concept}"
+What to show: ${description || "a clear animated explanation of how this concept works"}
 
-Design requirements:
-- Background: ${darkBg ? "#1a1e2a (dark navy)" : "#ffffff (white)"}
-- Text: ${darkBg ? "#e8eaf0 (light)" : "#1a1e2a (dark)"}
-- Accent colors: use blues, purples, and teals for highlights
-- ${darkBg ? "Use glowing effects sparingly for visual appeal" : "Use clean, academic styling"}
+Color scheme: ${darkBg
+  ? "dark background (#1a1e2a), text (#e8eaf0), accents: blue (#6C8EFF), purple (#A78BFA), green (#34D399), amber (#F59E0B)"
+  : "white background (#ffffff), text (#1a1e2a), accents: blue (#3B82F6), purple (#7C3AED), green (#10B981), amber (#F59E0B)"}
 
-Technical requirements:
-- Single self-contained HTML file (ALL CSS and JS inline, zero external dependencies)
-- Clear title at the top (the concept name)
-- Visual diagram or animation showing the concept
-- Labels and annotations on all key elements
-- Smooth CSS animations where they add educational value
-- Brief explanatory text below key visual elements
-- Responsive layout that works at 400px-800px width
-- Professional, academic quality suitable for university lectures
+YOU MUST IMPLEMENT ALL OF THE FOLLOWING — non-negotiable:
 
-The visualizer should help an MS student immediately understand the concept visually.
-Make it genuinely educational — not just decorative.
+ANIMATIONS (all must run automatically on page load, looping forever):
+- Signal/data flow: animated dots or pulses moving along paths between nodes using CSS @keyframes + translateX/translateY
+- Node activation: neurons or boxes that pulse with a glowing box-shadow animation when "active"
+- Flowing lines: SVG paths with animated stroke-dashoffset to show data flowing
+- Staggered reveals: elements appearing with animation-delay so the diagram builds up
+- Color transitions: nodes changing color smoothly to show state changes (e.g. inactive → active → fired)
+- At minimum 4 separate @keyframes animations running simultaneously
 
-Return ONLY the complete HTML, starting with <!DOCTYPE html>. No markdown, no explanation.`;
+DIAGRAM STRUCTURE:
+- A clear, well-spaced diagram that fills the page width (min 700px wide)
+- All nodes, layers, or components clearly labeled
+- Arrows or lines showing connections, animated with flowing dots
+- A legend if needed
+- Title at top, brief description below key elements
+
+TECHNICAL:
+- Single self-contained HTML file, zero external dependencies
+- All CSS inline in <style> tag, all JS inline in <script> tag
+- Must look great at 700px–1000px width
+- No user interaction required — everything animates on its own
+- Use SVG for diagrams and flow lines where appropriate
+
+Return ONLY the complete HTML starting with <!DOCTYPE html>. No markdown, no explanation, nothing else.`;
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",

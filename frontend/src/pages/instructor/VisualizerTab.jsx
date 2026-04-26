@@ -38,7 +38,7 @@ function VisualizerCard({ visualizer }) {
         <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
         <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', marginLeft: 4 }}>{visualizer.title}</p>
       </div>
-      <div style={{ height: 220, overflow: 'hidden' }}>
+      <div style={{ height: 500, overflow: 'hidden' }}>
         <iframe
           srcDoc={visualizer.html_content}
           style={{ width: '100%', height: '100%', border: 'none' }}
@@ -126,7 +126,7 @@ function AIVisualizerPanel({ lesson, addResource, onClose }) {
       {preview && (
         <div>
           <p style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>Preview</p>
-          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', height: 200 }}>
+          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', height: 420 }}>
             <iframe srcDoc={preview} style={{ width: '100%', height: '100%', border: 'none' }} sandbox="allow-scripts" title="Visualizer preview" />
           </div>
           <p style={{ fontSize: 10, color: 'var(--text3)', marginTop: 6 }}>Happy with it? Click Save to Lesson.</p>

@@ -175,7 +175,7 @@ export default function StudentCoursePage() {
                       </div>
                       <iframe
                         srcDoc={r.html_content}
-                        style={{ width: '100%', height: 280, border: 'none', display: 'block' }}
+                        style={{ width: '100%', height: 500, border: 'none', display: 'block' }}
                         sandbox="allow-scripts"
                         title={r.title}
                       />
