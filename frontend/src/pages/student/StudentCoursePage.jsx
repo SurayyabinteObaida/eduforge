@@ -266,6 +266,8 @@ function VisualizerModal({ visualizer, onClose }) {
     </div>
   )
 }
+
+function ResourceTypeIcon({ type, color }) {
   const paths = {
     link: <path d="M5.5 8l2.5-2.5M4 9A3 3 0 019 4l-.5.5M10 4A3 3 0 015 9l.5-.5" stroke={color} strokeWidth="1.3" strokeLinecap="round"/>,
     paper: <><rect x="2" y="1.5" width="9" height="10" rx="1" stroke={color} strokeWidth="1.3"/><path d="M4 5h5M4 7h3.5" stroke={color} strokeWidth="1.3" strokeLinecap="round"/></>,
