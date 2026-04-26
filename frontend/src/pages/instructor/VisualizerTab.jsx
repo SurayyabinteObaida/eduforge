@@ -70,27 +70,25 @@ function VisualizerModal({ visualizer, onClose }) {
   }, [onClose])
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div style={{ width: '100%', maxWidth: 1000, background: 'var(--bg2)', borderRadius: 12, border: '1px solid var(--border2)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
-        <div style={{ padding: '12px 18px', background: 'var(--bg3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
-            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginLeft: 6 }}>{visualizer.title}</p>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}>×</button>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: 'var(--bg3)', borderBottom: '1px solid var(--border)', padding: '10px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
+          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginLeft: 6 }}>{visualizer.title}</p>
         </div>
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <iframe
-            srcDoc={visualizer.html_content}
-            style={{ width: '100%', height: '100%', border: 'none', minHeight: 600 }}
-            sandbox="allow-scripts"
-            title={visualizer.title}
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <p style={{ fontSize: 11, color: 'var(--text3)' }}>Press Esc to close</p>
+          <button onClick={onClose} style={{ background: 'none', border: '1px solid var(--border2)', borderRadius: 5, padding: '3px 12px', color: 'var(--text2)', fontSize: 12, cursor: 'pointer' }}>Close</button>
         </div>
       </div>
-      <p style={{ color: 'var(--text3)', fontSize: 12, marginTop: 12 }}>Press Esc to close</p>
+      <iframe
+        srcDoc={visualizer.html_content}
+        style={{ flex: 1, width: '100%', border: 'none', display: 'block' }}
+        sandbox="allow-scripts"
+        title={visualizer.title}
+      />
     </div>
   )
 }
