@@ -3,8 +3,15 @@ import { api } from '../../utils/api.js'
 import { EmptyState, Toggle, AIPanelShell, GradientButton, TYPE_COLORS } from '../../components/ui.jsx'
 
 export default function ResourcesTab({ lesson, addResource, toggleResource, deleteResource, aiPanel, setAiPanel }) {
-  const resources = lesson.resources || []
+  const resources = (lesson.resources || []).filter(r => r.type !== 'visualizer')
   const visibleCount = resources.filter(r => r.is_enabled).length
+  const [editModal, setEditModal] = useState(null)
+
+  const handleEdit = async (resourceId, data) => {
+    await api.lessons.updateResource(lesson.id, resourceId, data)
+    // Reload lesson resources via parent — for now optimistic update via reload
+    window.location.reload()
+  }
 
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -18,21 +25,32 @@ export default function ResourcesTab({ lesson, addResource, toggleResource, dele
               <button onClick={() => setAiPanel('resources')} style={{ background: 'linear-gradient(135deg,#6C8EFF,#A78BFA)', border: 'none', borderRadius: 6, padding: '5px 12px', color: 'white', fontSize: 12, cursor: 'pointer' }}>+ Suggest More</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {resources.filter(r => r.type !== 'visualizer').map(r => (
-                <ResourceCard key={r.id} resource={r} onToggle={() => toggleResource(r.id, r.is_enabled)} onDelete={() => deleteResource(r.id)} />
+              {resources.map(r => (
+                <ResourceCard
+                  key={r.id}
+                  resource={r}
+                  onToggle={() => toggleResource(r.id, r.is_enabled)}
+                  onDelete={() => deleteResource(r.id)}
+                  onEdit={() => setEditModal(r)}
+                />
               ))}
             </div>
           </div>
         )}
       </div>
-      {aiPanel === 'resources' && (
-        <AIResourcesPanel lesson={lesson} addResource={addResource} onClose={() => setAiPanel(null)} />
+      {aiPanel === 'resources' && <AIResourcesPanel lesson={lesson} addResource={addResource} onClose={() => setAiPanel(null)} />}
+      {editModal && (
+        <EditResourceModal
+          resource={editModal}
+          onSubmit={data => handleEdit(editModal.id, data)}
+          onClose={() => setEditModal(null)}
+        />
       )}
     </div>
   )
 }
 
-function ResourceCard({ resource, onToggle, onDelete }) {
+function ResourceCard({ resource, onToggle, onDelete, onEdit }) {
   const color = TYPE_COLORS[resource.type] || 'var(--text3)'
   return (
     <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -47,9 +65,56 @@ function ResourceCard({ resource, onToggle, onDelete }) {
         {resource.description && <p style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 2, lineHeight: 1.4 }}>{resource.description}</p>}
         {resource.url && <p style={{ fontSize: 10, color: 'var(--accent)', opacity: 0.7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{resource.url}</p>}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
         <Toggle enabled={resource.is_enabled} onChange={onToggle} small />
-        <button onClick={onDelete} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: 2 }}>×</button>
+        <button onClick={onEdit} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 13, cursor: 'pointer', padding: 2 }}>✎</button>
+        <button onClick={onDelete} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 16, cursor: 'pointer', padding: 2, lineHeight: 1 }}>×</button>
+      </div>
+    </div>
+  )
+}
+
+function EditResourceModal({ resource, onSubmit, onClose }) {
+  const [form, setForm] = useState({ title: resource.title || '', url: resource.url || '', description: resource.description || '', type: resource.type || 'link' })
+  const [loading, setLoading] = useState(false)
+  const types = ['link', 'paper', 'framework', 'playground', 'tool']
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setLoading(true)
+    try { await onSubmit(form); onClose() } finally { setLoading(false) }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ background: 'var(--bg2)', border: '1px solid var(--border2)', borderRadius: 12, padding: 24, width: '100%', maxWidth: 460 }}>
+        <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--text)', marginBottom: 18 }}>Edit Resource</p>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+          <div>
+            <p style={lbl}>Title</p>
+            <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={iSt} />
+          </div>
+          <div>
+            <p style={lbl}>Type</p>
+            <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={iSt}>
+              {types.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <p style={lbl}>URL</p>
+            <input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} style={iSt} placeholder="https://..." />
+          </div>
+          <div>
+            <p style={lbl}>Description</p>
+            <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ ...iSt, height: 64, resize: 'none' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: '1px solid var(--border2)', borderRadius: 7, padding: '7px 16px', color: 'var(--text3)', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+            <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg,#6C8EFF,#A78BFA)', border: 'none', borderRadius: 7, padding: '7px 20px', color: 'white', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
@@ -88,12 +153,7 @@ function AIResourcesPanel({ lesson, addResource, onClose }) {
   useEffect(() => { suggest() }, [])
 
   const handleAdd = async (s, i) => {
-    try {
-      await addResource(s)
-      setAdded(prev => new Set([...prev, i]))
-    } catch (err) {
-      console.error(err)
-    }
+    try { await addResource(s); setAdded(prev => new Set([...prev, i])) } catch (err) { console.error(err) }
   }
 
   const icon = {
@@ -128,15 +188,10 @@ function AIResourcesPanel({ lesson, addResource, onClose }) {
                 <p style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4, lineHeight: 1.4 }}>{s.description}</p>
                 <p style={{ fontSize: 10, color: 'var(--accent)', opacity: 0.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.url}</p>
               </div>
-              <button
-                onClick={() => handleAdd(s, i)}
-                disabled={isAdded}
-                style={{
-                  background: isAdded ? 'var(--success)' : 'var(--accent)', border: 'none',
-                  borderRadius: 5, padding: '4px 10px', color: 'white', fontSize: 11,
-                  cursor: isAdded ? 'default' : 'pointer', flexShrink: 0, marginTop: 2, fontWeight: 500
-                }}
-              >{isAdded ? '✓' : 'Add'}</button>
+              <button onClick={() => handleAdd(s, i)} disabled={isAdded}
+                style={{ background: isAdded ? 'var(--success)' : 'var(--accent)', border: 'none', borderRadius: 5, padding: '4px 10px', color: 'white', fontSize: 11, cursor: isAdded ? 'default' : 'pointer', flexShrink: 0, marginTop: 2, fontWeight: 500 }}>
+                {isAdded ? '✓' : 'Add'}
+              </button>
             </div>
           </div>
         )
@@ -144,3 +199,6 @@ function AIResourcesPanel({ lesson, addResource, onClose }) {
     </AIPanelShell>
   )
 }
+
+const lbl = { fontSize: 11, fontWeight: 500, color: 'var(--text2)', marginBottom: 5 }
+const iSt = { width: '100%', background: 'var(--bg3)', border: '1px solid var(--border2)', borderRadius: 7, padding: '8px 10px', color: 'var(--text)', fontSize: 13, outline: 'none' }
