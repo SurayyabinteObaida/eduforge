@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../../utils/api.js'
 import { EmptyState, Field, inputStyle, AIPanelShell, GradientButton, Toggle } from '../../components/ui.jsx'
 
@@ -30,27 +30,67 @@ export default function VisualizerTab({ lesson, addResource, aiPanel, setAiPanel
 }
 
 function VisualizerCard({ visualizer }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
-        <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', marginLeft: 4 }}>{visualizer.title}</p>
-      </div>
-      <div style={{ height: 500, overflow: 'hidden' }}>
-        <iframe
-          srcDoc={visualizer.html_content}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          sandbox="allow-scripts"
-          title={visualizer.title}
-        />
-      </div>
-      {visualizer.description && (
-        <div style={{ padding: '8px 14px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 11, color: 'var(--text3)' }}>{visualizer.description}</p>
+    <>
+      <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
+          <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', marginLeft: 4, flex: 1 }}>{visualizer.title}</p>
+          <button onClick={() => setOpen(true)} style={{ background: 'var(--accent)', border: 'none', borderRadius: 5, padding: '3px 10px', color: 'white', fontSize: 11, cursor: 'pointer', fontWeight: 500 }}>
+            Open ↗
+          </button>
         </div>
-      )}
+        <div style={{ height: 200, overflow: 'hidden', pointerEvents: 'none' }}>
+          <iframe
+            srcDoc={visualizer.html_content}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            sandbox="allow-scripts"
+            title={visualizer.title}
+          />
+        </div>
+        {visualizer.description && (
+          <div style={{ padding: '8px 14px', borderTop: '1px solid var(--border)' }}>
+            <p style={{ fontSize: 11, color: 'var(--text3)' }}>{visualizer.description}</p>
+          </div>
+        )}
+      </div>
+      {open && <VisualizerModal visualizer={visualizer} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
+function VisualizerModal({ visualizer, onClose }) {
+  useEffect(() => {
+    const handler = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ width: '100%', maxWidth: 1000, background: 'var(--bg2)', borderRadius: 12, border: '1px solid var(--border2)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+        <div style={{ padding: '12px 18px', background: 'var(--bg3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
+            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginLeft: 6 }}>{visualizer.title}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <iframe
+            srcDoc={visualizer.html_content}
+            style={{ width: '100%', height: '100%', border: 'none', minHeight: 600 }}
+            sandbox="allow-scripts"
+            title={visualizer.title}
+          />
+        </div>
+      </div>
+      <p style={{ color: 'var(--text3)', fontSize: 12, marginTop: 12 }}>Press Esc to close</p>
     </div>
   )
 }
@@ -126,7 +166,7 @@ function AIVisualizerPanel({ lesson, addResource, onClose }) {
       {preview && (
         <div>
           <p style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>Preview</p>
-          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', height: 420 }}>
+          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', height: 200 }}>
             <iframe srcDoc={preview} style={{ width: '100%', height: '100%', border: 'none' }} sandbox="allow-scripts" title="Visualizer preview" />
           </div>
           <p style={{ fontSize: 10, color: 'var(--text3)', marginTop: 6 }}>Happy with it? Click Save to Lesson.</p>

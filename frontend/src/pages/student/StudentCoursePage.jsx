@@ -10,6 +10,7 @@ export default function StudentCoursePage() {
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [lessonLoading, setLessonLoading] = useState(false)
   const [presenting, setPresenting] = useState(false)
+  const [openVisualizer, setOpenVisualizer] = useState(null)
 
   useEffect(() => {
     api.courses.list()
@@ -169,16 +170,23 @@ export default function StudentCoursePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 14 }}>
                   {selectedLesson.resources.filter(r => r.is_enabled && r.type === 'visualizer').map(r => (
                     <div key={r.id} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
-                      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)' }}>
-                        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{r.title}</p>
-                        {r.description && <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>{r.description}</p>}
+                      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{r.title}</p>
+                          {r.description && <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>{r.description}</p>}
+                        </div>
+                        <button onClick={() => setOpenVisualizer(r)} style={{ background: 'var(--accent)', border: 'none', borderRadius: 5, padding: '4px 12px', color: 'white', fontSize: 11, cursor: 'pointer', fontWeight: 500, flexShrink: 0 }}>
+                          Open ↗
+                        </button>
                       </div>
-                      <iframe
-                        srcDoc={r.html_content}
-                        style={{ width: '100%', height: 500, border: 'none', display: 'block' }}
-                        sandbox="allow-scripts"
-                        title={r.title}
-                      />
+                      <div style={{ height: 200, overflow: 'hidden', pointerEvents: 'none' }}>
+                        <iframe
+                          srcDoc={r.html_content}
+                          style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                          sandbox="allow-scripts"
+                          title={r.title}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -219,11 +227,45 @@ export default function StudentCoursePage() {
       {presenting && selectedLesson?.slides && (
         <PresentationModal lesson={selectedLesson} onClose={() => setPresenting(false)} />
       )}
+      {openVisualizer && (
+        <VisualizerModal visualizer={openVisualizer} onClose={() => setOpenVisualizer(null)} />
+      )}
     </div>
   )
 }
 
-function ResourceTypeIcon({ type, color }) {
+function VisualizerModal({ visualizer, onClose }) {
+  useEffect(() => {
+    const handler = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ width: '100%', maxWidth: 1000, background: 'var(--bg2)', borderRadius: 12, border: '1px solid var(--border2)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+        <div style={{ padding: '12px 18px', background: 'var(--bg3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F87171' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
+            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginLeft: 6 }}>{visualizer.title}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <iframe
+            srcDoc={visualizer.html_content}
+            style={{ width: '100%', height: '100%', border: 'none', minHeight: 600 }}
+            sandbox="allow-scripts"
+            title={visualizer.title}
+          />
+        </div>
+      </div>
+      <p style={{ color: 'var(--text3)', fontSize: 12, marginTop: 12 }}>Press Esc to close</p>
+    </div>
+  )
+}
   const paths = {
     link: <path d="M5.5 8l2.5-2.5M4 9A3 3 0 019 4l-.5.5M10 4A3 3 0 015 9l.5-.5" stroke={color} strokeWidth="1.3" strokeLinecap="round"/>,
     paper: <><rect x="2" y="1.5" width="9" height="10" rx="1" stroke={color} strokeWidth="1.3"/><path d="M4 5h5M4 7h3.5" stroke={color} strokeWidth="1.3" strokeLinecap="round"/></>,
