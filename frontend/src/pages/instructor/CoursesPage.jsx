@@ -175,7 +175,7 @@ export default function CoursesPage() {
               <>
                 {tab === 'Slides' && <SlidesTab lesson={lesson} saveSlides={handleSaveSlides} aiPanel={aiPanel} setAiPanel={setAiPanel} onPresent={() => setPresenting(true)} />}
                 {tab === 'Resources' && <ResourcesTab lesson={lesson} addResource={addResource} toggleResource={toggleResource} deleteResource={deleteResource} aiPanel={aiPanel} setAiPanel={setAiPanel} />}
-                {tab === 'Visualizer' && <VisualizerTab lesson={lesson} addResource={addResource} aiPanel={aiPanel} setAiPanel={setAiPanel} />}
+                {tab === 'Visualizer' && <VisualizerTab lesson={lesson} addResource={addResource} toggleResource={toggleResource} deleteResource={deleteResource} aiPanel={aiPanel} setAiPanel={setAiPanel} />}
               </>
             )}
           </div>
