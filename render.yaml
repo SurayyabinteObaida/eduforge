@@ -1,0 +1,36 @@
+services:
+  # ─── Backend API ──────────────────────────────────────────────
+  - type: web
+    name: eduforge-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false          # paste your Neon URL in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Render generates a secure random value
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ANTHROPIC_API_KEY
+        sync: false          # paste your Anthropic key in Render dashboard
+      - key: FRONTEND_URL
+        sync: false          # paste your frontend Render URL after deploy
+
+  # ─── Frontend ─────────────────────────────────────────────────
+  - type: web
+    name: eduforge-app
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # paste your backend Render URL after deploy
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
