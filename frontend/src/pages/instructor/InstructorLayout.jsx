@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import SlidesDownloadButton from "../components/SlidesDownloadButton";
 
 export default function InstructorLayout() {
   const { user, logout } = useAuth()
